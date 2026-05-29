@@ -1,0 +1,13 @@
+node_modules/
+.next/
+dist/
+build/
+target/
+uploads/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+tools/maven/
+tools/maven.zip

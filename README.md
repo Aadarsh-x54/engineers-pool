@@ -1,5 +1,9 @@
 # Engineers Pool
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/0563376a-23e3-4e0b-b4d1-63e5b12dc2fb/deploy-status)](https://app.netlify.com/sites/engineers-pool-frontend-1315932840/deploys)
+
+**Live Production URL:** [https://engineers-pool-frontend-1315932840.netlify.app](https://engineers-pool-frontend-1315932840.netlify.app)
+
 Engineers Pool is a production-oriented full-stack notes platform for engineering students, with RGPV-first catalog navigation and an admin-only upload workflow.
 
 ## Stack

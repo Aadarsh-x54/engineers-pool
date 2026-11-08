@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: engineers-pool-api
+    runtime: docker
+    region: singapore
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: engineers-pool-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: engineers-pool-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: engineers-pool-db
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: engineers-pool-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: engineers-pool-db
+          property: password
+      - key: ENGINEERS_POOL_JWT_SECRET
+        generateValue: true
+      - key: ENGINEERS_POOL_ADMIN_EMAIL
+        value: admin@engineerspool.local
+      - key: ENGINEERS_POOL_ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://engineers-pool-frontend-1315932840.netlify.app
+      - key: STORAGE_PROVIDER
+        value: local
+      - key: LOCAL_STORAGE_ROOT
+        value: /tmp/engineers-pool-uploads
+      - key: MAX_FILE_SIZE_BYTES
+        value: "52428800"
+      - key: DOWNLOADS_PER_MINUTE
+        value: "30"
+
+databases:
+  - name: engineers-pool-db
+    databaseName: engineers_pool
+    user: engineers_pool
+    plan: free
+    region: singapore
+    postgresMajorVersion: "16"

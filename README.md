@@ -23,3 +23,11 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 The local profile uses a persistent H2 database in `backend/data/`, local uploads in `backend/uploads/`, and seeds the starter RGPV catalog. The default local admin credentials are `admin@engineerspool.local` / `0000`; change them with environment variables as needed. PostgreSQL remains the default outside this profile.
+
+## Deploy Backend to Render
+
+The repository includes a Render Blueprint in `render.yaml`. In Render, create a new Blueprint from this GitHub repository and deploy it. Enter a strong value for `ENGINEERS_POOL_ADMIN_PASSWORD` when prompted, then wait for the API health check to pass. The Blueprint creates the API and PostgreSQL database in Singapore.
+
+After deployment, copy the API's public `https://...onrender.com` URL. In Netlify, set the `NEXT_PUBLIC_API_URL` environment variable to that URL (without a trailing slash), then trigger a new frontend deploy. The backend Blueprint allows the current Netlify site origin; update `CORS_ALLOWED_ORIGINS` if the frontend uses a different domain.
+
+The included Blueprint uses Render's free plans for a demo. Free web services can sleep, free PostgreSQL databases expire after 30 days, and local uploaded files are ephemeral. Do not use this configuration for permanent data or production uploads; use paid persistent storage and a durable file-storage provider before relying on uploaded content.

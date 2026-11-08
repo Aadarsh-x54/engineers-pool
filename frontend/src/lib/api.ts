@@ -32,7 +32,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       cache: options.cache ?? "no-store"
     });
   } catch {
-    throw new Error(`Backend API is not reachable at ${url}. Start the Spring Boot server on port 8080, then try again.`);
+    throw new Error(
+      `Could not reach the backend API at ${url}. Check that the backend is running, NEXT_PUBLIC_API_URL is correct, and the backend allows this site's origin in CORS.`
+    );
   }
 
   if (!response.ok) {

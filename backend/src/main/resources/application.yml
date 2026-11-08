@@ -7,7 +7,7 @@ spring:
   application:
     name: engineers-pool-backend
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/engineers_pool}
+    url: ${DATABASE_URL:jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:engineers_pool}}
     username: ${DATABASE_USERNAME:postgres}
     password: ${DATABASE_PASSWORD:postgres}
   jpa:

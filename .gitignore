@@ -11,3 +11,6 @@ uploads/
 Thumbs.db
 tools/maven/
 tools/maven.zip
+
+# Local H2 database
+backend/data/

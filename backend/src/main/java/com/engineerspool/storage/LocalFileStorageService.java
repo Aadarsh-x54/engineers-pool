@@ -5,6 +5,8 @@ import com.engineerspool.exception.BadRequestException;
 import com.engineerspool.exception.NotFoundException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,6 +27,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "app.storage", name = "provider", havingValue = "local", matchIfMissing = true)
 public class LocalFileStorageService implements FileStorageService {
+
+    private static final Logger log = LoggerFactory.getLogger(LocalFileStorageService.class);
 
     private final StorageProperties properties;
     private Path rootPath;
@@ -51,7 +55,7 @@ public class LocalFileStorageService implements FileStorageService {
         try {
             Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
-            throw new BadRequestException("Could not store file.");
+            throw new IllegalStateException("Could not store uploaded file.", ex);
         }
         return new StorageResult(storageKey, "local://" + storageKey, originalName, fileType, file.getSize());
     }
@@ -84,8 +88,8 @@ public class LocalFileStorageService implements FileStorageService {
         }
         try {
             Files.deleteIfExists(filePath);
-        } catch (IOException ignored) {
-            // A missing old file should not block metadata deletion.
+        } catch (IOException ex) {
+            log.warn("Could not delete stored file {}", storageKey, ex);
         }
     }
 

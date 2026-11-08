@@ -21,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
 import java.util.UUID;
@@ -122,8 +124,8 @@ public class AdminNoteService {
             note.setPublished(request.getPublished());
         }
         if (request.getFile() != null && !request.getFile().isEmpty()) {
-            fileStorageService.delete(note.getStorageKey());
             StorageResult storage = fileStorageService.store(request.getFile());
+            scheduleFileCleanup(storage.storageKey(), note.getStorageKey());
             applyStorage(note, storage);
         }
         return noteMapper.toResponse(noteRepository.save(note));
@@ -139,12 +141,13 @@ public class AdminNoteService {
     @Transactional
     public void delete(UUID id) {
         Note note = noteRepository.findById(id).orElseThrow(() -> new NotFoundException("Note not found."));
-        fileStorageService.delete(note.getStorageKey());
         noteRepository.delete(note);
+        scheduleFileCleanup(null, note.getStorageKey());
     }
 
     private NoteResponse create(NoteUploadRequest request, NoteType noteType) {
         StorageResult storage = fileStorageService.store(request.getFile());
+        scheduleFileCleanup(storage.storageKey(), null);
         Note note = Note.builder()
                 .title(request.getTitle().trim())
                 .description(request.getDescription())
@@ -207,5 +210,20 @@ public class AdminNoteService {
         note.setFileName(storage.fileName());
         note.setFileType(storage.fileType());
         note.setFileSize(storage.fileSize());
+    }
+
+    private void scheduleFileCleanup(String rollbackStorageKey, String committedStorageKey) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_COMMITTED) {
+                    if (committedStorageKey != null) {
+                        fileStorageService.delete(committedStorageKey);
+                    }
+                } else if (rollbackStorageKey != null) {
+                    fileStorageService.delete(rollbackStorageKey);
+                }
+            }
+        });
     }
 }
